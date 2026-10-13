@@ -1,0 +1,56 @@
+{
+  "browser": "TurboX",
+  "version": "154.0.8037.99",
+  "captured": "2026-10-13",
+  "source_exe_md5": "f6bdb66a7c394b06c69c053ce547585b",
+  "frames": {
+    "1": {
+      "bytes": 890,
+      "md5": "dc7474c4983ca443473f99a0f0354384",
+      "marker_hex": "5478da85935d8894651cc5cfffff3cf3ced73b3be3b2bbb9b859a194b8998e8e",
+      "marker_b64": "VHjahZNdiJRlHMXP//88887XOzvjsru5uFmhlLiZjo4="
+    },
+    "2": {
+      "bytes": 1638,
+      "md5": "ab6d781ff0ee5a09b0d2903953073bed",
+      "marker_hex": "5478da9d556b8c9d55155dfb9cf33dee7c77ee9d77a7d46969c416870452d211",
+      "marker_b64": "VHjanVVrjJ1VFV37nPM97nx37p13p9RpacQWhwRS0hE="
+    },
+    "3": {
+      "bytes": 2472,
+      "md5": "6cfbde2eaa6169d3dddae1b5256adb17",
+      "marker_hex": "5478daa5977b8c5dd575c67f6bef7dcebd77ee9d3b33f83183c105073065acc4",
+      "marker_b64": "VHjapZd7jF3VdcZ/a+99zr137p07M/gxg8EFBzBlrMQ="
+    },
+    "4": {
+      "bytes": 4147,
+      "md5": "2ab2a7577f325e38b72edd5ad276833e",
+      "marker_hex": "5478dad599699c5c6595c6ffe77defad5b555ddd9d8524844dc3aa4159061018",
+      "marker_b64": "VHja1ZlpnFxllcb/533vrVtVXd2dhSSETcOqQVkGEBg="
+    },
+    "5": {
+      "bytes": 6021,
+      "md5": "f50a0a4849964d81bf9d6dcf487b9357",
+      "marker_hex": "5478dae57b79945c55b9efefdb7b9f53555d553d770732100943a00309d8800c",
+      "marker_b64": "VHja5Xt5lFxVue/v23ufU1VdVT13BzIQCUOgAwnYgAw="
+    },
+    "6": {
+      "bytes": 9644,
+      "md5": "591971a9c7d0a1f413407419f70bc659",
+      "marker_hex": "5478daed7d797c54e5b9fff779dff79c99c91e48020104c5280a6a55d4bae04d",
+      "marker_b64": "VHja7X15fFTluf/3ed/3nJnJHkgCAQTFKApqVdS64E0="
+    },
+    "7": {
+      "bytes": 13257,
+      "md5": "1cbdc79189d8198c1373b11f172e4c67",
+      "marker_hex": "5478daed5d67781cd5d57ecfbd335bb4bb92dce46e70a3d8603036bd48a6b738",
+      "marker_b64": "VHja7V1neBzV1X7PvTNbtLuS3ORucKPYYDA2vUimtzg="
+    },
+    "8": {
+      "bytes": 25591,
+      "md5": "34dbdc36e79e000a87404c70096d86cb",
+      "marker_hex": "5478daed5d777c1555da7ece9933734b7a21815012081d04c1062a02a228f682",
+      "marker_b64": "VHja7V13fBVV2n7OmTNzS3ohgVASCB0EwQYqAqIo9oI="
+    }
+  }
+}
