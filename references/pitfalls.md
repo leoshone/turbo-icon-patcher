@@ -17,6 +17,12 @@
 2. 重启 explorer（`Stop-Process explorer` → `Start-Process explorer`）
 3. 停 explorer → 置零 `iconcache_*.db` 头部 → 起 explorer（12/19 个文件能直接删就删，删不掉的置零）
 
+## 任务管理器（第 4 处图标场景）
+
+- Taskmgr 进程列表用 `ExtractIconEx(exe)` 读图标，结果被 shell 图标缓存接管，且 Taskmgr 自身还有一层进程内存级图标缓存
+- 症状：磁盘 exe 已换新、任务栏/资源管理器都已刷新，唯独任务管理器里仍旧图
+- 解决：**重开任务管理器即可**（内存缓存随进程消亡），无需再动系统缓存
+
 ## 时序陷阱
 
 - 磁盘 mtime 只有秒级精度判断进程新旧不可靠——用 `Get-Process`.StartTime（毫秒）对比文件 LastWriteTime
