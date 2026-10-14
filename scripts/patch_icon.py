@@ -9,7 +9,7 @@ Turbo/Chromium 浏览器图标一站式替换工具。
 前置: Pillow (pip install pillow), pefile (pip install pefile), numpy
 执行前必须完全退出浏览器（含后台进程 tasklist | findstr /i turbo）。
 
-对 Chromium 系浏览器（以 TurboX 为例）的三处图标源做替换:
+对 Chromium 系浏览器（以 Turbo 为例）的三处图标源做替换:
   1. <root>/turbo.exe                   RT_ICON 1-8 (PNG 帧, IDR_MAINFRAME)
   2. <root>/User Data/*/Google Profile.ico  任务栏固定项图标
   3. <root>/<ver>/chrome.dll            内嵌 PNG 资源块 (运行窗口图标的真来源)

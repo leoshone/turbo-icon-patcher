@@ -1,13 +1,13 @@
 ---
 name: chromium-icon-patcher
-description: 替换 Turbo/Chromium 系浏览器（TurboX、Cent Browser 等便携版）的应用图标。当用户要求"换浏览器图标"、"升级后图标变了/回退了"、"换电脑后恢复自定义图标"时使用。核心认知：Chromium 运行窗口图标真来源是 chrome.dll 内嵌 PNG（不是 exe 的 RT_ICON，也不是 profile ico），三处必须同时替换。本 skill 提供 dry-run/apply 两阶段一站式脚本，支持版本升级后重打。
+description: 替换 Turbo/Chromium 系浏览器（Turbo、Cent Browser 等便携版）的应用图标。当用户要求"换浏览器图标"、"升级后图标变了/回退了"、"换电脑后恢复自定义图标"时使用。核心认知：Chromium 运行窗口图标真来源是 chrome.dll 内嵌 PNG（不是 exe 的 RT_ICON，也不是 profile ico），三处必须同时替换。本 skill 提供 dry-run/apply 两阶段一站式脚本，支持版本升级后重打。
 ---
 
-# Chromium 浏览器图标替换器（TurboX 实战沉淀）
+# Chromium 浏览器图标替换器（Turbo 实战沉淀）
 
 ## 概述
 
-替换便携版 Chromium 浏览器（案例：TurboX 154.0.8037.99，`D:\Software\Turbo`）的应用图标。图标修改不是"改一个文件"，而是**三处图标源同时替换**——漏一处就会出现"这里变了那里没变"的排查困境。本 skill 沉淀自 2026-10-13 Turbo 图标改造实战（去除右上角黄竖线误认"通知1"问题，三轮排查定位三处图标源）。
+替换便携版 Chromium 浏览器（案例：Turbo 154.0.8037.99，`D:\Software\Turbo`）的应用图标。图标修改不是"改一个文件"，而是**三处图标源同时替换**——漏一处就会出现"这里变了那里没变"的排查困境。本 skill 沉淀自 2026-10-13 Turbo 图标改造实战（去除右上角黄竖线误认"通知1"问题，三轮排查定位三处图标源）。
 
 **典型触发场景**：
 - 浏览器大版本升级后图标回退（版本目录被整个替换）

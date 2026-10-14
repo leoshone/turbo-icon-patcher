@@ -52,5 +52,6 @@
       "marker_hex": "5478daed5d777c1555da7ece9933734b7a21815012081d04c1062a02a228f682",
       "marker_b64": "VHja7V13fBVV2n7OmTNzS3ohgVASCB0EwQYqAqIo9oI="
     }
-  }
+  },
+  "note": "exe VersionInfo ProductName 为 'TurboX'，对外品牌名 Turbo；此处保留官方 ProductName"
 }
