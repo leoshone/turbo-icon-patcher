@@ -138,3 +138,12 @@ chromium-icon-patcher/
 - 旧黄竖线（256px 基准）：x 234-246, y 5-80；管道：y 24-66（中心 45），右端 x≈220
 - chrome.dll 8 帧偏移（154.0.8037.99）：0x11F64420 起，帧间有序
 - UpdateResourceW 写整数资源 ID 的 argtypes 必须用 c_void_p 直接传 int（MAKEINTRESOURCE 语义）
+
+## 版本差异：154.0.8037.101（2026-10-18 实测）
+
+- .101 起 exe 内含 **6 个 RT_GROUP_ICON 组共 40 帧 RT_ICON**（id 1-40）：IDR_MAINFRAME(1-8) / APP_LIST(9-15) / INCOGNITO(16-19) / HTML_DOC(20-26) / PDF_DOC(27-33) / ISOLATED(34-40)
+- patch_icon.py 已按 IDR_MAINFRAME 组解析目标帧，只换主图标；旧版脚本无脑全换会 KeyError 且误换无痕/文档图标
+- .101 chrome.dll 帧偏移：0x11F8D228 起（与 .99 不同，脚本按帧内容定位，不依赖硬编码偏移）
+- pefile 命名资源 entry.name 是 UnicodeStringWrapperPostProcessor，取值需 `str()` 而非 `.decode()`
+- ico 重建必须用 master 本体 `save(sizes=...)`；传已缩小图时 sizes 参数不生效，只会产出单帧 8px
+- assets/live_icon_turbo154_101.png：.101 运行窗口图标验证图（旧图分=0）

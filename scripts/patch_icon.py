@@ -45,7 +45,7 @@ def old_bar_score(im: Image.Image) -> int:
 
 # ---------- exe RT_ICON replacement (Win32 UpdateResource) ----------
 
-def patch_exe(exe_path: str, frames: dict, apply: bool):
+def patch_exe(exe_path: str, frames: dict, apply: bool, target_ids: set = None):
     import pefile
     pe = pefile.PE(exe_path, fast_load=True)
     pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE']])
@@ -53,6 +53,10 @@ def patch_exe(exe_path: str, frames: dict, apply: bool):
     for entry in pe.DIRECTORY_ENTRY_RESOURCE.entries:
         if entry.id == pefile.RESOURCE_TYPE['RT_ICON']:
             for e in entry.directory.entries:
+                # 只处理主图标组（IDR_MAINFRAME）的帧；154.0.8037.101 起 exe 内还有
+                # 应用列表/无痕/HTML/PDF/隔离应用等其他图标组，不能动
+                if target_ids is not None and e.id not in target_ids:
+                    continue
                 lang = e.directory.entries[0]
                 ids.append((e.id, lang.id))
     pe.close()
@@ -98,8 +102,9 @@ def patch_profile_ico(ico_path: str, master: Image.Image, apply: bool):
     if not apply:
         print(f'  [ico] {os.path.basename(os.path.dirname(ico_path))}: would rebuild {len(sizes)} sizes')
         return
-    imgs = [master.resize(s, Image.LANCZOS) if s != (256, 256) else master for s in sizes]
-    imgs[0].save(ico_path, format='ICO', sizes=sizes)
+    # 必须用 master 本体 + sizes 列表保存：PIL 的 ICO 插件只在保存图上按 sizes 重采样出全部帧；
+    # 若传已缩小的图（如 8px 小图），sizes 参数不生效，只会写出单帧 8px 图标（任务栏会模糊）
+    master.save(ico_path, format='ICO', sizes=sizes)
     print(f'  [ico] {os.path.basename(os.path.dirname(ico_path))}: rebuilt {len(sizes)} sizes')
 
 
@@ -169,8 +174,40 @@ def collect_frames(exe_path: str, max_id: int = 8) -> dict:
     return frames
 
 
-def patch_chrome_dll(dll_path: str, master: Image.Image, old_frames: dict, apply: bool):
+def mainframe_icon_ids(exe_path: str) -> set:
+    """解析 RT_GROUP_ICON 中 IDR_MAINFRAME（主程序图标）组引用的 RT_ICON id 集合。
+
+    154.0.8037.101 起 exe 内含 6 个图标组（主图标/应用列表/无痕/HTML/PDF/隔离应用），
+    共 40 帧 RT_ICON；替换时只能动 IDR_MAINFRAME 的帧，否则会把无痕图标等一并换掉。
+    找不到该组时返回空集，由调用方回退为"全部已收集帧"。
+    """
+    import pefile
+    import struct
+    pe = pefile.PE(exe_path, fast_load=True)
+    pe.parse_data_directories(directories=[pefile.DIRECTORY_ENTRY['IMAGE_DIRECTORY_ENTRY_RESOURCE']])
+    ids = set()
+    for entry in pe.DIRECTORY_ENTRY_RESOURCE.entries:
+        if entry.id != pefile.RESOURCE_TYPE['RT_GROUP_ICON']:
+            continue
+        for e in entry.directory.entries:
+            # pefile 的命名资源 entry.name 是 UnicodeStringWrapperPostProcessor，需 str() 取值
+            name = str(e.name) if e.name is not None else None
+            if name != 'IDR_MAINFRAME':
+                continue
+            lang = e.directory.entries[0]
+            data = pe.get_data(lang.data.struct.OffsetToData, lang.data.struct.Size)
+            cnt = struct.unpack('<H', data[4:6])[0]
+            for i in range(cnt):
+                # GRPICONDIRENTRY 14B/条，wResId 在条目内偏移 +12
+                ids.add(struct.unpack('<H', data[6 + 14 * i + 12:6 + 14 * i + 14])[0])
+    pe.close()
+    return ids
+
+
+def patch_chrome_dll(dll_path: str, master: Image.Image, old_frames: dict, apply: bool,
+                     frame_sizes: dict = None):
     """old_frames: {icon_id: 旧帧原始字节}（来自未打补丁的 exe 备份），作为 dll 内定位基准。
+    frame_sizes: {icon_id: (w,h)} 每帧像素尺寸（从旧帧 PNG 解码），缺省回退标准 16..256 映射。
     在 dll 中定位旧帧 → 等大小替换为新帧（DLL 总大小不变，PE 结构不动）。"""
     data = bytearray(open(dll_path, 'rb').read())
     orig_len = len(data)
@@ -185,8 +222,11 @@ def patch_chrome_dll(dll_path: str, master: Image.Image, old_frames: dict, apply
         if bytes(data[start:start + len(old_bytes)]) != old_bytes:
             print(f'  [dll] frame id={i}: partial match only, skip for safety')
             continue
-        size = master.size if i == 8 else (16, 24, 32, 48, 64, 96, 128)[i - 1]
-        im = master if i == 8 else master.resize(size, Image.LANCZOS)
+        # 帧尺寸优先取旧帧解码结果；缺省时按 icon id 标准映射：1→16px, 2→24px, ..., 7→128px, 8→256px
+        size = (frame_sizes or {}).get(i)
+        if size is None:
+            size = master.size if i == 8 else ((16, 24, 32, 48, 64, 96, 128)[i - 1],) * 2
+        im = master if size == master.size else master.resize(size, Image.LANCZOS)
         plan.append((start, old_bytes, build_png_exact(im, len(old_bytes)), i))
     if not apply:
         print(f'  [dll] dry-run: {len(plan)} frames locatable and size-matched')
@@ -202,8 +242,6 @@ def patch_chrome_dll(dll_path: str, master: Image.Image, old_frames: dict, apply
 
 
 # ---------- main ----------
-
-SIZES = (1, 16), (2, 24), (3, 32), (4, 48), (5, 64), (6, 96), (7, 128), (8, 256)
 
 
 def main():
@@ -224,22 +262,30 @@ def main():
     exe = os.path.join(root, 'turbo.exe')
     ref_exe = args.reference_exe or exe
 
-    old_frames = collect_frames(ref_exe)
+    # 只替换主图标组 IDR_MAINFRAME 的帧；154.0.8037.101 起 exe 还有
+    # 应用列表/无痕/HTML/PDF/隔离应用等图标组，必须保持原样
+    main_ids = mainframe_icon_ids(exe) or None
+    old_frames = collect_frames(ref_exe, max_id=64)
+    if main_ids:
+        old_frames = {i: b for i, b in old_frames.items() if i in main_ids}
+
+    # 每帧尺寸从旧帧 PNG 解码获得，不硬编码 id→尺寸映射，兼容不同构建的 exe
+    frame_sizes = {i: Image.open(io.BytesIO(b)).size for i, b in old_frames.items()}
     new_frames = {}
-    for i, size in SIZES:
-        im = master if i == 8 else master.resize((size, size), Image.LANCZOS)
+    for i, size in frame_sizes.items():
+        im = master if size == master.size else master.resize(size, Image.LANCZOS)
         buf = io.BytesIO()
         im.save(buf, 'PNG', compress_level=9)
         new_frames[i] = buf.getvalue()
 
-    cur8 = collect_frames(exe, max_id=8).get(8)
-    exe_is_new = cur8 is not None and md5(cur8) == md5(new_frames[8])
-    ref_is_old = old_frames.get(8) is not None and not exe_is_new or ref_exe != exe
-    print(f'[status] exe 256px: {"NEW 已改过" if exe_is_new else "OLD/未匹配"}; '
+    big_id = next((i for i, s in frame_sizes.items() if s == master.size), None)
+    cur_big = collect_frames(exe, max_id=64).get(big_id) if big_id else None
+    exe_is_new = cur_big is not None and big_id in new_frames and md5(cur_big) == md5(new_frames[big_id])
+    print(f'[status] exe 256px(id={big_id}): {"NEW 已改过" if exe_is_new else "OLD/未匹配"}; '
           f'chrome.dll 定位基准: {ref_exe}')
 
-    print('[1/3] turbo.exe RT_ICON 1-8')
-    patch_exe(exe, new_frames, args.apply)
+    print(f'[1/3] turbo.exe RT_ICON（IDR_MAINFRAME {len(new_frames)} 帧）')
+    patch_exe(exe, new_frames, args.apply, target_ids=main_ids)
 
     print('[2/3] Google Profile.ico')
     profiles = ['Default']
@@ -259,7 +305,7 @@ def main():
     for vd in ver_dirs:
         dll = os.path.join(root, vd, 'chrome.dll')
         if os.path.exists(dll):
-            patch_chrome_dll(dll, master, old_frames, args.apply)
+            patch_chrome_dll(dll, master, old_frames, args.apply, frame_sizes=frame_sizes)
 
     print('\n完成提示: 重启浏览器生效；任务栏缓存顽固时 ie4uinit -Show + 重启 explorer。')
 
