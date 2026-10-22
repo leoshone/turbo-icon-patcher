@@ -4,7 +4,7 @@ Two editions of the same tool. Pick ONE.
 
 ## Which one?
 
-| | `turbo-icon-patcher-py` | `turbo-icon-patcher-portable` |
+| | `turbo-icon-patcher-py` | `turbo-icon-patcher` |
 |---|---|---|
 | Runtime | Python 3.8+ (auto venv in folder) | **None** - Windows 10/11 built-ins only |
 | Entry | `patch_turbo_icon.bat` | `patch_turbo_icon_portable.bat` |
