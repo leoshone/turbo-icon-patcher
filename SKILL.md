@@ -83,7 +83,7 @@ python scripts/patch_icon.py --new-icon edited_256.png --root "D:\Software\Turbo
 
 ```python
 # 从运行窗口提取 GCLP_HICON 实际图标并做旧图标签检测
-# 完整脚本见 references/verify_live_icon.py
+# Python 实现见 scripts/verify_live_icon.py;零依赖版直接跑 patch_turbo_icon.bat verify
 # 判定标准：右上角旧竖线区域（x>=84%, y<=33%）黄像素最高列 < 8 → 新图标
 ```
 
@@ -109,7 +109,7 @@ python scripts/patch_icon.py --new-icon edited_256.png --root "D:\Software\Turbo
 turbo-icon-patcher/
 ├── README.md                     # 完整使用文档(面向用户)
 ├── SKILL.md                      # 本文件
-├── patch_turbo_icon.bat          # 入口(两版同名;仓库内为零依赖版)
+├── patch_turbo_icon.bat          # 入口(apply/dry/verify)
 ├── scripts/
 │   ├── IconPatcher.cs            # C# 引擎(零依赖版,Add-Type 运行时编译)
 │   ├── patch_turbo_icon.ps1      # 零依赖版编排层
