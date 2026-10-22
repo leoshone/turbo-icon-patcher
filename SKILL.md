@@ -47,7 +47,7 @@ git clone https://github.com/leoshone/turbo-icon-patcher.git "$env:USERPROFILE\.
 git clone https://github.com/leoshone/turbo-icon-patcher.git .workbuddy/skills/turbo-icon-patcher
 ```
 
-依赖(Python 版):Python 3.8+,`pip install pillow pefile numpy`。
+开发测试依赖(Python 实现):Python 3.8+,`pip install pillow pefile numpy`(仅开发测试用,发行包不含)。
 另有**零依赖版**(`patch_turbo_icon.bat` + `scripts/IconPatcher.cs` + `scripts/patch_turbo_icon.ps1`),仅用 Win10/11 内置组件(PS 5.1 + Add-Type 收件箱编译器),面向最终用户,见 README。
 
 ### 第 2 步：准备新版图标 master
@@ -113,8 +113,8 @@ turbo-icon-patcher/
 ├── scripts/
 │   ├── IconPatcher.cs            # C# 引擎(零依赖版,Add-Type 运行时编译)
 │   ├── patch_turbo_icon.ps1      # 零依赖版编排层
-│   ├── patch_icon.py             # Python 版一站式替换工具（dry-run/apply）
-│   └── verify_live_icon.py       # Python 版运行窗口图标提取与验证
+│   ├── patch_icon.py             # 早期 Python 实现（开发测试参考,发行包不含）
+│   └── verify_live_icon.py       # 运行窗口图标验证（Python,开发测试参考）
 ├── assets/
 │   ├── edited_256.png            # 当前采用的新版 master（Turbo 图标改造版）
 │   ├── old_frames_turbo154.json  # 官方原版 8 帧基准（md5/定位特征）
@@ -150,8 +150,8 @@ turbo-icon-patcher/
 
 - .102 延续 .101 的 6 组 40 帧结构, IDR_MAINFRAME 解析逻辑不变
 - .102 chrome.dll 帧偏移：0x11F9FC28 起（再次验证必须按内容定位,不可硬编码）
-- 双版本实测均通过:Python 版(三源替换+PIL 交叉验证)与零依赖版(C# 引擎+活窗口验证 score=1)
-- 发行包定名 `turbo-icon-patcher.zip`(py 版为 `-py` 后缀);入口统一为 `patch_turbo_icon.bat`(两版同名)
+- 零依赖版实测通过(活窗口验证 score=1);Python 实现曾用于交叉验证(旧图分=0)
+- 发行包仅 `turbo-icon-patcher.zip`;入口 `patch_turbo_icon.bat`
 
 ## 历史版本差异存档
 

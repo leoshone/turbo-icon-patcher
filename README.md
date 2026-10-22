@@ -16,18 +16,13 @@ Chromium 浏览器图标有**三个独立来源**,只改 exe 是不够的:
 
 ---
 
-## 一、下载哪个包
+## 一、下载
 
-到 [Releases](https://github.com/leoshone/turbo-icon-patcher/releases) 下载,**二选一**:
+到 [Releases](https://github.com/leoshone/turbo-icon-patcher/releases) 下载 **`turbo-icon-patcher.zip`**。
 
-| | `turbo-icon-patcher.zip`(推荐) | `turbo-icon-patcher-py.zip` |
-|---|---|---|
-| 需要安装什么 | **什么都不装**(用 Win10/11 自带组件) | 电脑上需有 Python 3.8+ |
-| 首次运行 | 编译内嵌 C# 引擎,约 1 秒 | 自动创建 .venv 并装依赖,约 30 秒(需联网) |
-| 入口文件 | `patch_turbo_icon.bat` | 同名 `patch_turbo_icon.bat`(随 zip 提供,内容为 Python 版) |
-| 适合场景 | 换新电脑、给别人的机器用、不想碰 Python | 已有 Python 环境、想改脚本逻辑 |
-
-两包用法完全一样,入口文件名相同(均为 `patch_turbo_icon.bat`),双击即用。
+- **无需安装任何东西**:只用 Windows 10/11 自带组件(PowerShell 5.1 + 系统自带编译器)
+- 首次运行编译内嵌 C# 引擎,约 1 秒
+- 入口文件:`patch_turbo_icon.bat`,双击即用
 
 ## 二、安装位置
 
@@ -51,7 +46,7 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 | 操作 | 怎么做 |
 |---|---|
 | **打补丁(最常用)** | 双击 `patch_turbo_icon.bat`。自动:杀掉 Turbo 后台进程 → 替换三处图标 → 刷新系统图标缓存 |
-| **只预览不写入** | 命令行运行 `patch_turbo_icon.bat dry`(py 版:命令行跑 `python scripts/patch_icon.py --new-icon assets/edited_256.png --root <Turbo目录>`,不加 `--apply` 即预览) |
+| **只预览不写入** | 命令行运行 `patch_turbo_icon.bat dry` |
 | **验证运行窗口图标** | Turbo **开着**时,命令行运行 `patch_turbo_icon.bat verify` |
 
 打完补丁**重启 Turbo** 生效。如果任务栏图标没变,依次尝试:
@@ -68,12 +63,11 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 
 | 现象 | 原因与处理 |
 |---|---|
-| `BeginUpdateResource failed` / 拒绝访问 | Turbo 没退净。任务管理器结束所有 `turbo.exe` 后重跑(bat 会自动杀,手动跑 ps1/py 时需自己杀) |
+| `BeginUpdateResource failed` / 拒绝访问 | Turbo 没退净。任务管理器结束所有 `turbo.exe` 后重跑(bat 会自动杀,手动跑 ps1 时需自己杀) |
 | 图标某处没变 | 九成是系统图标缓存:取消固定重固定 / 重启 explorer |
-| 换新电脑报 Python 相关错误 | 用 `turbo-icon-patcher.zip`(零依赖版);或删除 `icon-patcher\.venv` 后重跑(py 版自动重建环境) |
 | exe 文件属性里签名失效 | 正常现象:改资源必然破坏签名,功能不受影响 |
 | 想换成别的图标设计 | 用新的 256×256 PNG 替换 `assets\edited_256.png`(当前内置:去黄竖线版) |
-| exe 是新图标但 chrome.dll 补不上 | exe 曾被改过、失去旧帧定位基准。py 版用 `--reference-exe` 指向旧 exe 备份;零依赖版直接找 AI 重新生成基准 |
+| exe 是新图标但 chrome.dll 补不上 | exe 曾被改过、失去旧帧定位基准,直接找 AI 重新生成基准 |
 
 ## 六、安全说明
 
@@ -87,9 +81,7 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 
 - **原理与方法论**:见 [`SKILL.md`](SKILL.md)(三图标源根因、坑位清单、可作为 AI Skill 安装)
 - **排障细节**:见 [`references/pitfalls.md`](references/pitfalls.md) 与 [`references/rootcause.md`](references/rootcause.md)
-- **两个版本的实现**:
-  - `turbo-icon-patcher.zip` ← `scripts/IconPatcher.cs`(C# 引擎,PowerShell `Add-Type` 运行时用系统自带 csc 编译,C# 5 语法)+ `scripts/patch_turbo_icon.ps1`(编排)
-  - `turbo-icon-patcher-py.zip` ← `scripts/patch_icon.py`(PIL + pefile + numpy,venv 自愈式 bat 入口)
+- **实现**:`scripts/IconPatcher.cs`(C# 引擎,PowerShell `Add-Type` 运行时用系统自带 csc 编译,C# 5 语法)+ `scripts/patch_turbo_icon.ps1`(编排)。`scripts/patch_icon.py` 与 `verify_live_icon.py` 为早期 Python 实现,保留作开发测试参考,发行包不包含
 - **历史版本说明**:各版本变更见对应 Release 页面;README 始终对应当前最新版的用法
 
 ## 仓库结构
@@ -97,12 +89,12 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 ```
 ├── README.md                        # 本文件(完整使用文档)
 ├── SKILL.md                         # AI Agent Skill 定义(方法论沉淀)
-├── patch_turbo_icon.bat             # 入口(两版同名;zip 内为各自版本)
+├── patch_turbo_icon.bat             # 入口(即发行包内同名文件)
 ├── scripts/
 │   ├── IconPatcher.cs               # C# 引擎(Win32 资源 API / 等长 PNG / ICO 组装)
-│   ├── patch_turbo_icon.ps1         # 零依赖版编排层
-│   ├── patch_icon.py                # Python 版核心(三源一站式,dry-run/apply)
-│   └── verify_live_icon.py          # 运行窗口图标提取验证(py)
+│   ├── patch_turbo_icon.ps1         # 编排层
+│   ├── patch_icon.py                # 早期 Python 实现(开发测试参考,发行包不含)
+│   └── verify_live_icon.py          # 运行窗口图标验证(Python 版,同上)
 ├── assets/                          # 工具运行所需
 │   ├── edited_256.png               # 图标母版(256×256,去黄竖线版)
 │   ├── old_frames_turbo154.json     # 官方原版 8 帧基准(md5/定位特征)
