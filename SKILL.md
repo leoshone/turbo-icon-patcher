@@ -48,7 +48,7 @@ git clone https://github.com/leoshone/turbo-icon-patcher.git .workbuddy/skills/t
 ```
 
 依赖(Python 版):Python 3.8+,`pip install pillow pefile numpy`。
-另有**零依赖 portable 版**(`patch_turbo_icon.bat` + `scripts/IconPatcher.cs` + `scripts/patch_turbo_icon.ps1`),仅用 Win10/11 内置组件(PS 5.1 + Add-Type 收件箱编译器),面向最终用户,见 README。
+另有**零依赖版**(`patch_turbo_icon.bat` + `scripts/IconPatcher.cs` + `scripts/patch_turbo_icon.ps1`),仅用 Win10/11 内置组件(PS 5.1 + Add-Type 收件箱编译器),面向最终用户,见 README。
 
 ### 第 2 步：准备新版图标 master
 
@@ -109,10 +109,10 @@ python scripts/patch_icon.py --new-icon edited_256.png --root "D:\Software\Turbo
 turbo-icon-patcher/
 ├── README.md                     # 完整使用文档(面向用户)
 ├── SKILL.md                      # 本文件
-├── patch_turbo_icon.bat          # 入口(两版同名;仓库内为 portable 版)
+├── patch_turbo_icon.bat          # 入口(两版同名;仓库内为零依赖版)
 ├── scripts/
-│   ├── IconPatcher.cs            # C# 引擎(portable 版,Add-Type 运行时编译)
-│   ├── patch_turbo_icon.ps1      # portable 版编排层
+│   ├── IconPatcher.cs            # C# 引擎(零依赖版,Add-Type 运行时编译)
+│   ├── patch_turbo_icon.ps1      # 零依赖版编排层
 │   ├── patch_icon.py             # Python 版一站式替换工具（dry-run/apply）
 │   └── verify_live_icon.py       # Python 版运行窗口图标提取与验证
 ├── assets/
@@ -150,8 +150,8 @@ turbo-icon-patcher/
 
 - .102 延续 .101 的 6 组 40 帧结构, IDR_MAINFRAME 解析逻辑不变
 - .102 chrome.dll 帧偏移：0x11F9FC28 起（再次验证必须按内容定位,不可硬编码）
-- 双版本实测均通过:Python 版(三源替换+PIL 交叉验证)与 portable 版(C# 引擎+活窗口验证 score=1)
-- 资产更名:发行包 `turbo-icon-patcher-portable.zip` → `turbo-icon-patcher.zip`;入口统一为 `patch_turbo_icon.bat`(两版同名)
+- 双版本实测均通过:Python 版(三源替换+PIL 交叉验证)与零依赖版(C# 引擎+活窗口验证 score=1)
+- 发行包定名 `turbo-icon-patcher.zip`(py 版为 `-py` 后缀);入口统一为 `patch_turbo_icon.bat`(两版同名)
 
 ## 历史版本差异存档
 

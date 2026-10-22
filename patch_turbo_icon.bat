@@ -2,7 +2,7 @@
 setlocal EnableExtensions
 
 rem ============================================================
-rem  Turbo one-click icon patcher - PORTABLE edition
+rem  Turbo one-click icon patcher - zero-dependency edition
 rem  (bat + PowerShell + inbox csc.exe; no Python, no installs)
 rem  Repo: https://github.com/leoshone/turbo-icon-patcher
 rem  Usage:
@@ -34,7 +34,7 @@ if not errorlevel 1 (
     )
 )
 
-rem ---- run portable patcher ---------------------------------
+rem ---- run zero-dependency patcher ---------------------------------
 powershell -NoProfile -ExecutionPolicy Bypass -File "%PS1%" %ARGUMENTS%
 set "RC=%ERRORLEVEL%"
 

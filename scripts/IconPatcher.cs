@@ -1,4 +1,4 @@
-// IconPatcher.cs - binary/icon engine for the Turbo icon patcher (portable edition).
+// IconPatcher.cs - binary/icon engine for the Turbo icon patcher (zero-dependency edition).
 // Compiled at runtime by PowerShell Add-Type using the inbox .NET Framework 4 compiler.
 // Language level: C# 5 (no string interpolation, no null-conditional).
 // Ported from scripts/patch_icon.py (leoshone/turbo-icon-patcher).
