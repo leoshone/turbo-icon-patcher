@@ -24,10 +24,10 @@ Chromium 浏览器图标有**三个独立来源**,只改 exe 是不够的:
 |---|---|---|
 | 需要安装什么 | **什么都不装**(用 Win10/11 自带组件) | 电脑上需有 Python 3.8+ |
 | 首次运行 | 编译内嵌 C# 引擎,约 1 秒 | 自动创建 .venv 并装依赖,约 30 秒(需联网) |
-| 入口文件 | `patch_turbo_icon_portable.bat` | `patch_turbo_icon.bat` |
+| 入口文件 | `patch_turbo_icon.bat` | 同名 `patch_turbo_icon.bat`(随 zip 提供,内容为 Python 版) |
 | 适合场景 | 换新电脑、给别人的机器用、不想碰 Python | 已有 Python 环境、想改脚本逻辑 |
 
-两包用法完全一样。下文以 `turbo-icon-patcher.zip` 为例,py 版把入口文件名替换即可。
+两包用法完全一样,入口文件名相同(均为 `patch_turbo_icon.bat`),双击即用。
 
 ## 二、安装位置
 
@@ -38,7 +38,7 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 ├── turbo.exe
 ├── 154.0.xxxx.xxx\           ← 版本目录
 └── icon-patcher\             ← 补丁工具放这里
-    ├── patch_turbo_icon_portable.bat
+    ├── patch_turbo_icon.bat
     ├── scripts\
     └── assets\               ← edited_256.png 是图标母版
 ```
@@ -50,9 +50,9 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 
 | 操作 | 怎么做 |
 |---|---|
-| **打补丁(最常用)** | 双击 `patch_turbo_icon_portable.bat`。自动:杀掉 Turbo 后台进程 → 替换三处图标 → 刷新系统图标缓存 |
-| **只预览不写入** | 命令行运行 `patch_turbo_icon_portable.bat dry`(py 版:命令行跑 `python scripts/patch_icon.py --new-icon assets/edited_256.png --root <Turbo目录>`,不加 `--apply` 即预览) |
-| **验证运行窗口图标** | Turbo **开着**时,命令行运行 `patch_turbo_icon_portable.bat verify`(py 版:`patch_turbo_icon.bat verify`) |
+| **打补丁(最常用)** | 双击 `patch_turbo_icon.bat`。自动:杀掉 Turbo 后台进程 → 替换三处图标 → 刷新系统图标缓存 |
+| **只预览不写入** | 命令行运行 `patch_turbo_icon.bat dry`(py 版:命令行跑 `python scripts/patch_icon.py --new-icon assets/edited_256.png --root <Turbo目录>`,不加 `--apply` 即预览) |
+| **验证运行窗口图标** | Turbo **开着**时,命令行运行 `patch_turbo_icon.bat verify` |
 
 打完补丁**重启 Turbo** 生效。如果任务栏图标没变,依次尝试:
 
@@ -88,7 +88,7 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 - **原理与方法论**:见 [`SKILL.md`](SKILL.md)(三图标源根因、坑位清单、可作为 AI Skill 安装)
 - **排障细节**:见 [`references/pitfalls.md`](references/pitfalls.md) 与 [`references/rootcause.md`](references/rootcause.md)
 - **两个版本的实现**:
-  - `turbo-icon-patcher.zip` ← `scripts/IconPatcher.cs`(C# 引擎,PowerShell `Add-Type` 运行时用系统自带 csc 编译,C# 5 语法)+ `scripts/patch_turbo_icon_portable.ps1`(编排)
+  - `turbo-icon-patcher.zip` ← `scripts/IconPatcher.cs`(C# 引擎,PowerShell `Add-Type` 运行时用系统自带 csc 编译,C# 5 语法)+ `scripts/patch_turbo_icon.ps1`(编排)
   - `turbo-icon-patcher-py.zip` ← `scripts/patch_icon.py`(PIL + pefile + numpy,venv 自愈式 bat 入口)
 - **历史版本说明**:各版本变更见对应 Release 页面;README 始终对应当前最新版的用法
 
@@ -97,11 +97,10 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 ```
 ├── README.md                        # 本文件(完整使用文档)
 ├── SKILL.md                         # AI Agent Skill 定义(方法论沉淀)
-├── patch_turbo_icon_portable.bat    # 入口:零依赖版
-├── patch_turbo_icon.bat             # 入口:Python 版(本机安装形态)
+├── patch_turbo_icon.bat             # 入口(两版同名;zip 内为各自版本)
 ├── scripts/
 │   ├── IconPatcher.cs               # C# 引擎(Win32 资源 API / 等长 PNG / ICO 组装)
-│   ├── patch_turbo_icon_portable.ps1# 零依赖版编排层
+│   ├── patch_turbo_icon.ps1# 零依赖版编排层
 │   ├── patch_icon.py                # Python 版核心(三源一站式,dry-run/apply)
 │   └── verify_live_icon.py          # 运行窗口图标提取验证(py)
 ├── assets/

@@ -6,9 +6,9 @@ rem  Turbo one-click icon patcher - PORTABLE edition
 rem  (bat + PowerShell + inbox csc.exe; no Python, no installs)
 rem  Repo: https://github.com/leoshone/turbo-icon-patcher
 rem  Usage:
-rem    patch_turbo_icon_portable.bat            apply icon patch
-rem    patch_turbo_icon_portable.bat dry        preview only (no writes)
-rem    patch_turbo_icon_portable.bat verify     verify live window icon
+rem    patch_turbo_icon.bat            apply icon patch
+rem    patch_turbo_icon.bat dry        preview only (no writes)
+rem    patch_turbo_icon.bat verify     verify live window icon
 rem  Notes:
 rem    - Turbo root = parent folder of this folder (must contain turbo.exe)
 rem    - Requires only Windows 10/11 built-ins:
@@ -17,7 +17,7 @@ rem    - Keep this folder on an ASCII path (no Chinese chars).
 rem ============================================================
 
 set "TOOL=%~dp0"
-set "PS1=%TOOL%scripts\patch_turbo_icon_portable.ps1"
+set "PS1=%TOOL%scripts\patch_turbo_icon.ps1"
 
 set "ARGUMENTS=-AllProfiles -Apply"
 if /i "%~1"=="dry"    set "ARGUMENTS="

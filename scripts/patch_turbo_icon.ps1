@@ -1,4 +1,4 @@
-# patch_turbo_icon_portable.ps1 - portable edition (no Python, no installs).
+# patch_turbo_icon.ps1 - portable edition (no Python, no installs).
 # Orchestrates the three icon sources; binary/icon work is done by
 # scripts/IconPatcher.cs, compiled at runtime via Add-Type (inbox csc.exe).
 # Parity reference: scripts/patch_icon.py (leoshone/turbo-icon-patcher).
