@@ -73,7 +73,7 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 | 换新电脑报 Python 相关错误 | 用 `turbo-icon-patcher.zip`(零依赖版);或删除 `icon-patcher\.venv` 后重跑(py 版自动重建环境) |
 | exe 文件属性里签名失效 | 正常现象:改资源必然破坏签名,功能不受影响 |
 | 想换成别的图标设计 | 用新的 256×256 PNG 替换 `assets\edited_256.png`(当前内置:去黄竖线版) |
-| exe 是新图标但 chrome.dll 补不上 | exe 曾被改过、失去旧帧定位基准。py 版用 `--reference-exe` 指向旧 exe 备份;portable 版直接找 AI 重新生成基准 |
+| exe 是新图标但 chrome.dll 补不上 | exe 曾被改过、失去旧帧定位基准。py 版用 `--reference-exe` 指向旧 exe 备份;零依赖版直接找 AI 重新生成基准 |
 
 ## 六、安全说明
 
@@ -100,12 +100,16 @@ D:\Software\Turbo\            ← Turbo 安装目录(里面能看到 turbo.exe)
 ├── patch_turbo_icon.bat             # 入口(两版同名;zip 内为各自版本)
 ├── scripts/
 │   ├── IconPatcher.cs               # C# 引擎(Win32 资源 API / 等长 PNG / ICO 组装)
-│   ├── patch_turbo_icon.ps1# 零依赖版编排层
+│   ├── patch_turbo_icon.ps1         # 零依赖版编排层
 │   ├── patch_icon.py                # Python 版核心(三源一站式,dry-run/apply)
 │   └── verify_live_icon.py          # 运行窗口图标提取验证(py)
-├── assets/
+├── assets/                          # 工具运行所需
 │   ├── edited_256.png               # 图标母版(256×256,去黄竖线版)
 │   ├── old_frames_turbo154.json     # 官方原版 8 帧基准(md5/定位特征)
-│   └── old_frames_turbo154.md       # 偏移与几何基准记录
-└── references/                      # 根因分析与坑位清单
+│   ├── old_frames_turbo154.md       # 偏移与几何基准记录
+│   └── upstream/                    # 官方原版各尺寸图标(对照用)
+└── references/                      # 开发者资料(运行不需要)
+    ├── rootcause.md                 # 三图标源根因分析全记录
+    ├── pitfalls.md                  # 排障坑位清单
+    └── evidence/                    # 历次实测取证图(前后对比/活窗口验证)
 ```

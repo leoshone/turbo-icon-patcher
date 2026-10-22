@@ -1,5 +1,5 @@
 ---
-name: chromium-icon-patcher
+name: turbo-icon-patcher
 description: 替换 Turbo/Chromium 系浏览器（Turbo、Cent Browser 等便携版）的应用图标。当用户要求"换浏览器图标"、"升级后图标变了/回退了"、"换电脑后恢复自定义图标"时使用。核心认知：Chromium 运行窗口图标真来源是 chrome.dll 内嵌 PNG（不是 exe 的 RT_ICON，也不是 profile ico），三处必须同时替换。本 skill 提供 dry-run/apply 两阶段一站式脚本，支持版本升级后重打。
 ---
 
@@ -41,13 +41,14 @@ Chromium 浏览器图标有**三个独立来源**，各有用途：
 让 AI 先把本 skill 安装到项目下（用户说"安装这个 skill"时）：
 
 ```bash
-# 从 gh 私有库克隆到用户级技能目录（跨项目可用）
-git clone https://github.com/leoshone/turbo-icon-patcher.git "$env:USERPROFILE\.workbuddy\skills\chromium-icon-patcher"
+# 从 GitHub 公开库克隆到用户级技能目录（跨项目可用）
+git clone https://github.com/leoshone/turbo-icon-patcher.git "$env:USERPROFILE\.workbuddy\skills\turbo-icon-patcher"
 # 或项目级（仅当前项目）
-git clone https://github.com/leoshone/turbo-icon-patcher.git .workbuddy/skills/chromium-icon-patcher
+git clone https://github.com/leoshone/turbo-icon-patcher.git .workbuddy/skills/turbo-icon-patcher
 ```
 
-依赖：Python 3.8+，`pip install pillow pefile numpy`
+依赖(Python 版):Python 3.8+,`pip install pillow pefile numpy`。
+另有**零依赖 portable 版**(`patch_turbo_icon.bat` + `scripts/IconPatcher.cs` + `scripts/patch_turbo_icon.ps1`),仅用 Win10/11 内置组件(PS 5.1 + Add-Type 收件箱编译器),面向最终用户,见 README。
 
 ### 第 2 步：准备新版图标 master
 
@@ -105,18 +106,24 @@ python scripts/patch_icon.py --new-icon edited_256.png --root "D:\Software\Turbo
 ## 文件结构
 
 ```
-chromium-icon-patcher/
+turbo-icon-patcher/
+├── README.md                     # 完整使用文档(面向用户)
 ├── SKILL.md                      # 本文件
+├── patch_turbo_icon.bat          # 入口(两版同名;仓库内为 portable 版)
 ├── scripts/
-│   ├── patch_icon.py             # 一站式替换工具（dry-run/apply）
-│   └── verify_live_icon.py       # 运行窗口图标提取与验证
+│   ├── IconPatcher.cs            # C# 引擎(portable 版,Add-Type 运行时编译)
+│   ├── patch_turbo_icon.ps1      # portable 版编排层
+│   ├── patch_icon.py             # Python 版一站式替换工具（dry-run/apply）
+│   └── verify_live_icon.py       # Python 版运行窗口图标提取与验证
 ├── assets/
 │   ├── edited_256.png            # 当前采用的新版 master（Turbo 图标改造版）
-│   ├── old_frames_turbo154.md    # Turbo 154 旧帧定位特征记录（md5/偏移）
-│   └── before_after.png          # 前后对比图（识别参考）
+│   ├── old_frames_turbo154.json  # 官方原版 8 帧基准（md5/定位特征）
+│   ├── old_frames_turbo154.md    # 旧帧定位特征记录（偏移/几何）
+│   └── upstream/                 # 官方原版各尺寸图标(对照用)
 └── references/
     ├── rootcause.md              # 三图标源根因分析全记录
-    └── pitfalls.md               # 排障坑位清单（缓存/签名/后台进程/PrintWindow）
+    ├── pitfalls.md               # 排障坑位清单（缓存/签名/后台进程/PrintWindow）
+    └── evidence/                 # 历次实测取证图(前后对比/活窗口验证)
 ```
 
 ## 排障速查
@@ -139,11 +146,14 @@ chromium-icon-patcher/
 - chrome.dll 8 帧偏移（154.0.8037.99）：0x11F64420 起，帧间有序
 - UpdateResourceW 写整数资源 ID 的 argtypes 必须用 c_void_p 直接传 int（MAKEINTRESOURCE 语义）
 
-## 版本差异：154.0.8037.101（2026-10-18 实测）
+## 版本差异：154.0.8037.102（2026-10-21/22 实测）
 
-- .101 起 exe 内含 **6 个 RT_GROUP_ICON 组共 40 帧 RT_ICON**（id 1-40）：IDR_MAINFRAME(1-8) / APP_LIST(9-15) / INCOGNITO(16-19) / HTML_DOC(20-26) / PDF_DOC(27-33) / ISOLATED(34-40)
-- patch_icon.py 已按 IDR_MAINFRAME 组解析目标帧，只换主图标；旧版脚本无脑全换会 KeyError 且误换无痕/文档图标
-- .101 chrome.dll 帧偏移：0x11F8D228 起（与 .99 不同，脚本按帧内容定位，不依赖硬编码偏移）
-- pefile 命名资源 entry.name 是 UnicodeStringWrapperPostProcessor，取值需 `str()` 而非 `.decode()`
-- ico 重建必须用 master 本体 `save(sizes=...)`；传已缩小图时 sizes 参数不生效，只会产出单帧 8px
-- assets/live_icon_turbo154_101.png：.101 运行窗口图标验证图（旧图分=0）
+- .102 延续 .101 的 6 组 40 帧结构, IDR_MAINFRAME 解析逻辑不变
+- .102 chrome.dll 帧偏移：0x11F9FC28 起（再次验证必须按内容定位,不可硬编码）
+- 双版本实测均通过:Python 版(三源替换+PIL 交叉验证)与 portable 版(C# 引擎+活窗口验证 score=1)
+- 资产更名:发行包 `turbo-icon-patcher-portable.zip` → `turbo-icon-patcher.zip`;入口统一为 `patch_turbo_icon.bat`(两版同名)
+
+## 历史版本差异存档
+
+- **154.0.8037.101（2026-10-18）**:.101 起 exe 内含 **6 个 RT_GROUP_ICON 组共 40 帧 RT_ICON**（id 1-40）：IDR_MAINFRAME(1-8) / APP_LIST(9-15) / INCOGNITO(16-19) / HTML_DOC(20-26) / PDF_DOC(27-33) / ISOLATED(34-40)。patch_icon.py 按 IDR_MAINFRAME 组解析目标帧,只换主图标;旧版脚本无脑全换会 KeyError 且误换无痕/文档图标。chrome.dll 帧偏移 0x11F8D228 起。pefile 命名资源 entry.name 是 UnicodeStringWrapperPostProcessor,取值需 `str()` 而非 `.decode()`。ico 重建必须用 master 本体 `save(sizes=...)`;传已缩小图时 sizes 参数不生效,只会产出单帧 8px。验证图:references/evidence/live_icon_turbo154_101.png（旧图分=0）
+- **154.0.8037.99（2026-10-13）**:初始版本,exe 仅 IDR_MAINFRAME 8 帧;chrome.dll 8 帧偏移 0x11F64420 起。见 references/rootcause.md 全记录
